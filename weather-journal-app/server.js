@@ -1,5 +1,5 @@
-// Setup an array to become as a projectData endpoint to store objects
-let projectData = [];
+// Setup an projectData endpoint
+let projectData = {};
 
 // Require Express to run server and routes
 const express = require("express");
@@ -13,6 +13,7 @@ app.use(bodyParser.json());
 
 // Cors for cross origin allowance
 const cors = require("cors");
+app.use(cors());
 // Initialize the main project folder
 app.use(express.static('website'));
 
@@ -25,16 +26,17 @@ function listening() {
     console.log("server is running");
 }
 
-// getData
-app.post("/", (req, res) => {
-    console.log("server now");
-    let newEntry = {};
-    newEntry["temprature"] = req.body.temprature;
-    newEntry["date"] = req.body.date;
-    newEntry["content"] = req.body.content;
-    projectData.push(newEntry);
-    console.log(projectData);
+// get posted data from app.js
+app.post("/addData", (req, res) => {
+    projectData["temprature"] = req.body.temprature;
+    projectData["date"] = req.body.date;
+    projectData["content"] = req.body.content;
+   //  console.log(projectData);
     res.send(projectData);
 })
 
-
+// handling get request and send project data as  a response
+app.get("/all", (req, res) => {
+    console.log(projectData);
+    res.send(projectData);
+})
