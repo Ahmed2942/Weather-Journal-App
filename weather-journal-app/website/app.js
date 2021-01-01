@@ -11,7 +11,7 @@ const generateBtn = document.querySelector("#generate");
 let d = new Date();
 let newDate = (d.getMonth()+1) +'.'+ d.getDate()+'.'+ d.getFullYear();
 
-// select entry
+// select entry boxes
 const tempBox = document.querySelector("#temp");
 const dateBox = document.querySelector("#date");
 const contentBox = document.querySelector("#content");
@@ -21,25 +21,23 @@ generateBtn.addEventListener("click", function() {
     zipCode = document.querySelector("#zip").value;
     const userInput = document.querySelector("#feelings").value;
     const finalURI = baseURI + zipCode + countryCode + measureUnit + apiKey;
-    getData(finalURI).then(data => {
-        console.log(data.main.temp);
-        return postData("/", {temprature: data.main.temp, date: newDate, content: userInput});
-    }).then(updateUI);
+    getData(finalURI).then(data => postData("/addData", {temprature: data.main.temp, date: newDate, content: userInput}))
+    .then(updateUI)
 })
 
-// action!!!!!
+// get data from api
 const getData = async (url = "") => {
     const response = await fetch(url);
     try {
         let newData = await response.json();
-        console.log(newData);
         return newData;
     }
-    catch {
-        console.log("error here");
+    catch(error) {
+        console.log("error in getting data from api: ", error);
     }
 }
 
+// post data to server
 const postData = async (url = "", data = {}) => {
     const response = await fetch(url, {
         method: "POST",
@@ -51,16 +49,24 @@ const postData = async (url = "", data = {}) => {
     })
     try {
         let newData = await response.json();
-        console.log(newData);
         return newData;
     }
-    catch {
-        console.log("error here");
+    catch(error) {
+        console.log("error in sending data to server: ", error);
     }
 }
 
-function updateUI(data) {
-    tempBox.textContent = data[data.length-1].temprature;
-    dateBox.textContent = data[data.length-1].date;
-    contentBox.textContent = data[data.length-1].content;
+// get data from server endpoint
+const updateUI = async() => {
+    const allData = await fetch("/all");
+    console.log(allData);
+    try {
+        const newData = await allData.json();
+        tempBox.innerHTML = newData.temprature;
+        dateBox.innerHTML = newData.date;
+        contentBox.innerHTML = newData.content;
+    }
+    catch(error) {
+        console.log("error in getting data from server: ", error)
+    }
 }
